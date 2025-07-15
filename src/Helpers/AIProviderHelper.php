@@ -78,12 +78,24 @@ class AIProviderHelper
      */
     public static function getProviderModel(string $provider): string
     {
-        return match ($provider) {
-            'openai' => setting('ai_content_openai_api_model', 'gpt-4o-mini'),
-            'gemini' => setting('ai_content_gemini_api_model', 'gemini-2.0-flash'),
-            'claude' => setting('ai_content_claude_api_model', 'claude-3-5-sonnet-20241022'),
-            default => '',
+        $model = match ($provider) {
+            'openai' => setting('ai_content_openai_api_model'),
+            'gemini' => setting('ai_content_gemini_api_model'),
+            'claude' => setting('ai_content_claude_api_model'),
+            default => null,
         };
+        
+        // Only fallback to default if database returns null
+        if ($model === null) {
+            return match ($provider) {
+                'openai' => 'gpt-4o-mini',
+                'gemini' => 'gemini-2.0-flash',
+                'claude' => 'claude-3-5-sonnet-20241022',
+                default => 'gpt-4o-mini',
+            };
+        }
+        
+        return $model;
     }
 
     /**
