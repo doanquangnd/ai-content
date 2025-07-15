@@ -37,7 +37,7 @@ class AiContentServiceProvider extends ServiceProvider
         $this
             ->setNamespace('plugins/ai-content')
             ->loadHelpers()
-            ->loadAndPublishConfigurations(['ai-content', 'permissions'])
+            ->loadAndPublishConfigurations(['ai-content'])
             ->loadAndPublishTranslations()
             ->loadRoutes()
             ->loadAndPublishViews()
