@@ -1,0 +1,10 @@
+{
+    "id": "doanquang/ai-content",
+    "name": "Ai Content",
+    "namespace": "DoanQuang\\AiContent\\",
+    "provider": "DoanQuang\\AiContent\\Providers\\AiContentServiceProvider",
+    "author": "doanquang",
+    "url": "",
+    "version": "1.0.0",
+    "description": "AI Content Generator for Botble CMS"
+}

@@ -1,0 +1,26 @@
+{
+    "name": "doanquang/ai-content",
+    "type": "package",
+    "description": "AI content for Botble CMS",
+    "homepage": "https://github.com/doanquangnd/ai-content",
+    "authors": [
+        {
+            "name": "Doan Quang",
+            "homepage": "https://github.com/doanquangnd"
+        }
+    ],
+    "require": {
+        "symfony/http-client": "^7.2",
+        "nyholm/psr7": "^1.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "DoanQuang\\AiContent\\": "src/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    }
+}
