@@ -15,7 +15,7 @@ class Plugin extends PluginOperationAbstract
     public static function activate(): void
     {
         // Run seeder to create default prompts
-        $seeder = new \DoanQuang\AiContent\Database\Seeders\AiContentSeeder();
-        $seeder->run();
+        //$seeder = new \DoanQuang\AiContent\Database\Seeders\AiContentSeeder();
+        //$seeder->run();
     }
 }
