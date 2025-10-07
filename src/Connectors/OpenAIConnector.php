@@ -3,6 +3,7 @@
 namespace DoanQuang\AiContent\Connectors;
 
 use DoanQuang\AiContent\Contracts\Connector;
+use DoanQuang\AiContent\Helpers\AIProviderHelper;
 use OpenAI\Exceptions\ErrorException;
 
 /**
@@ -83,25 +84,44 @@ class OpenAIConnector implements Connector
      */
     private function chatStream(string $model, array|string $messages): \Generator
     {
-        try {
-            $params = [
-                'model' => $model,
-                'messages' => is_array($messages) ? $messages : [
-                    ['role' => 'user', 'content' => $messages],
-                ],
-                'temperature' => $this->defaultTemperature,
-            ];
+        $retry = AIProviderHelper::getProviderRetryConfig('openai');
+        $attempt = 0;
+        $backoffMs = $retry['backoff_initial_ms'] ?? 500;
 
-            $response = $this->chat->createStreamed($params);
-            foreach ($response as $chunk) {
-                if (isset($chunk->choices[0]->delta->content)) {
-                    yield $chunk->choices[0]->delta->content;
+        while (true) {
+            try {
+                $params = [
+                    'model' => $model,
+                    'messages' => is_array($messages) ? $messages : [
+                        ['role' => 'user', 'content' => $messages],
+                    ],
+                    'temperature' => $this->defaultTemperature,
+                ];
+
+                $response = $this->chat->createStreamed($params);
+                foreach ($response as $chunk) {
+                    if (isset($chunk->choices[0]->delta->content)) {
+                        yield $chunk->choices[0]->delta->content;
+                    }
                 }
-            }
-        } catch (\Exception $e) {
-            if ($this->isQuotaExceeded($e)) {
-                yield 'Xin lỗi, tôi đã đạt giới hạn quota. Vui lòng thử lại sau.';
-            } else {
+
+                return; // success
+            } catch (\Exception $e) {
+                $attempt++;
+
+                if ($this->isQuotaExceeded($e) && ($retry['enabled'] ?? true) && $attempt < ($retry['max_attempts'] ?? 3)) {
+                    // sleep with exponential backoff + jitter
+                    $jitter = mt_rand(0, (int) ($retry['jitter_ms'] ?? 200));
+                    usleep(($backoffMs + $jitter) * 1000);
+                    $backoffMs = (int) max(50, $backoffMs * ($retry['backoff_factor'] ?? 2.0));
+                    continue;
+                }
+
+                if ($this->isQuotaExceeded($e)) {
+                    yield $e->getMessage();
+                    return;
+                }
+
                 throw $e;
             }
         }

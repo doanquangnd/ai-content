@@ -5,6 +5,7 @@ let externalId = null;
 let promptId = "";
 let selectedProvider = 'gemini'; // Default provider - will be updated from PHP
 let isStreaming = false; // Flag to prevent multiple requests
+let cleanedContent = '';
 
 // Translation function
 function trans(key) {
@@ -191,7 +192,7 @@ function ajaxAi(button, ask, callback) {
                 fullContent += data;
 
                 // Clean HTML content to remove document structure
-                const cleanedContent = cleanHtmlContent(fullContent);
+                cleanedContent = cleanHtmlContent(fullContent);
 
                 // Cập nhật preview với HTML đã được làm sạch
                 if (previewContainer) {
@@ -228,11 +229,11 @@ function ajaxAi(button, ask, callback) {
             content = content.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
             
             // Remove backtick characters
-            content = content.replace(/`/g, '');
-            content = content.replace(/html/g, '');
+            // content = content.replace(/`/g, '');
+            // content = content.replace(/html/g, '');
             
             // Clean up extra whitespace and newlines
-            content = content.replace(/\s+/g, ' ');
+            // content = content.replace(/\s+/g, ' ');
             content = content.trim();
             
             return content;
@@ -277,7 +278,7 @@ function ajaxAi(button, ask, callback) {
             Botble.showSuccess(trans('plugins/ai-content::ai-content.content_created_successfully'));
 
             // Clean HTML content before final display
-            const cleanedContent = cleanHtmlContent(fullContent);
+            cleanedContent = cleanHtmlContent(fullContent);
 
             // Cập nhật preview với nội dung cuối cùng đã được làm sạch
             if (previewContainer && cleanedContent.trim()) {
@@ -289,7 +290,8 @@ function ajaxAi(button, ask, callback) {
                 callback(cleanedContent);
             }
 
-            autoImportToEditor(cleanedContent);
+            autoImportToEditor();
+
         }
 
         // Reset UI khi kết thúc hoặc lỗi
@@ -384,6 +386,12 @@ function disableInputs() {
         textarea.disabled = true;
         textarea.setAttribute('readonly', true);
     }
+
+    // Hide re-import to editor button
+    const reImportToEditor = document.querySelector('.re-import-to-editor');
+    if (reImportToEditor) {
+        reImportToEditor.style.display = 'none';
+    }
 }
 
 // Hàm enable các input fields
@@ -409,6 +417,12 @@ function enableInputs() {
     if (textarea) {
         textarea.disabled = false;
         textarea.removeAttribute('readonly');
+    }
+
+    // Show re-import to editor button
+    const reImportToEditor = document.querySelector('.re-import-to-editor');
+    if (reImportToEditor) {
+        reImportToEditor.style.display = 'block';
     }
 }
 
@@ -453,14 +467,14 @@ function allowModalClose() {
 }
 
 // Tự động import nội dung vào editor và kích hoạt chức năng chỉnh sửa
-function autoImportToEditor(content) {
-    if (!content) return;
+function autoImportToEditor() {
+    if (!cleanedContent) return;
     try {
         // Import vào CKEditor nếu có
         if (window.EDITOR && window.EDITOR.CKEDITOR && Object.keys(window.EDITOR.CKEDITOR).length !== 0) {
             const editorInstance = window.EDITOR.CKEDITOR['content'];
             if (editorInstance && typeof editorInstance.setData === 'function') {
-                editorInstance.setData(content);
+                editorInstance.setData(cleanedContent);
                 Botble.showSuccess(trans('plugins/ai-content::ai-content.auto_add_content'));
             } else {
                 console.error('Không tìm thấy instance CKEditor hợp lệ', window.EDITOR.CKEDITOR);
@@ -469,7 +483,7 @@ function autoImportToEditor(content) {
 
         // Import vào TinyMCE nếu có
         if (typeof window.tinyMCE !== 'undefined' && window.tinyMCE.activeEditor) {
-            window.tinyMCE.activeEditor.setContent(content);
+            window.tinyMCE.activeEditor.setContent(cleanedContent);
             Botble.showSuccess(trans('plugins/ai-content::ai-content.auto_add_content'));
         }
     } catch (error) {
@@ -602,7 +616,7 @@ $(document).on('change', '#completion-select-prompt', function (event) {
 $(document).on('click', '.btn-ai-content-completion', function (event) {
     event.preventDefault();
     event.stopPropagation();
-
+    cleanedContent = '';
     // Lấy nội dung từ input
     let ask = $('#completion-ask').val();
     if (!ask || ask.trim() === '') {
@@ -615,6 +629,13 @@ $(document).on('click', '.btn-ai-content-completion', function (event) {
     
     // Tạo nội dung với prompt được chọn
     ajaxAi(this, ask);
+});
+
+// Sự kiện click vào nút re-import to editor
+$(document).on('click', '.re-import-to-editor', function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+    autoImportToEditor();
 });
 
 // Gọi khởi tạo khi tài liệu đã sẵn sàng

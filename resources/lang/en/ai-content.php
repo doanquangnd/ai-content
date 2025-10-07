@@ -23,7 +23,7 @@ return [
     'claude_api_key_help' => 'https://docs.anthropic.com/en/docs/api/getting-started',
     'button_show' => 'AI Content',
     'close' => 'Close',
-    'import_to_editor' => 'Import Content To Editor',
+    're_import_to_editor' => 'Re-import Content',
     'prompt' => 'Start with a detailed description',
     'completion_get' => 'Generator Content',
     'select_prompt' => 'Select Prompt Template',

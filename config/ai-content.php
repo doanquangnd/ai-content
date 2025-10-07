@@ -32,6 +32,13 @@ return [
             'max_tokens' => 1000,
             'temperature' => 0.7,
             'request_timeout' => env('OPENAI_REQUEST_TIMEOUT', 30),
+            'retry' => [
+                'enabled' => env('AI_CONTENT_OPENAI_RETRY_ENABLED', true),
+                'max_attempts' => env('AI_CONTENT_OPENAI_RETRY_MAX_ATTEMPTS', 3),
+                'backoff_initial_ms' => env('AI_CONTENT_OPENAI_RETRY_BACKOFF_INITIAL_MS', 500),
+                'backoff_factor' => env('AI_CONTENT_OPENAI_RETRY_BACKOFF_FACTOR', 2.0),
+                'jitter_ms' => env('AI_CONTENT_OPENAI_RETRY_JITTER_MS', 200),
+            ],
         ],
 
         'claude' => [

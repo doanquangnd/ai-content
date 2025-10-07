@@ -107,6 +107,8 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ trans('plugins/ai-content::ai-content.close') }}</button>
                 @if (\DoanQuang\AiContent\Helpers\AIProviderHelper::hasAnyProvider())
+
+                    <button type="button" class="btn btn-info re-import-to-editor" style="display: none;">{{ trans('plugins/ai-content::ai-content.re_import_to_editor') }}</button>
                     <button type="button" class="btn btn-primary btn-ai-content-completion">{{ trans('plugins/ai-content::ai-content.completion_get') }}</button>
                 @endif
             </div>
@@ -149,6 +151,7 @@
             'plugins/ai-content::ai-content.loading_content': "{{ trans('plugins/ai-content::ai-content.loading_content') }}",
             'plugins/ai-content::ai-content.create_content_automatically': "{{ trans('plugins/ai-content::ai-content.create_content_automatically') }}",
             'plugins/ai-content::ai-content.create_content_automatically_title': "{{ trans('plugins/ai-content::ai-content.create_content_automatically_title') }}",
+            'plugins/ai-content::ai-content.re_import_to_editor': "{{ trans('plugins/ai-content::ai-content.re_import_to_editor') }}",
         }
 
     </script>

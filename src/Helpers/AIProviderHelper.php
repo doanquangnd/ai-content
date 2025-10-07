@@ -10,9 +10,9 @@ class AIProviderHelper
     public static function getApiKey(string $provider): string
     {
         return match ($provider) {
-            'openai' => setting('ai_content_openai_api_key', ''),
-            'gemini' => setting('ai_content_gemini_api_key', ''),
-            'claude' => setting('ai_content_claude_api_key', ''),
+            'openai' => (string) (setting('ai_content_openai_api_key', '') ?? ''),
+            'gemini' => (string) (setting('ai_content_gemini_api_key', '') ?? ''),
+            'claude' => (string) (setting('ai_content_claude_api_key', '') ?? ''),
             default => '',
         };
     }
@@ -62,6 +62,23 @@ class AIProviderHelper
     public static function getProviderConfig(string $provider): array
     {
         return config("ai-content.providers.{$provider}", []);
+    }
+
+    /**
+     * Get retry configuration for a provider
+     */
+    public static function getProviderRetryConfig(string $provider): array
+    {
+        $config = self::getProviderConfig($provider);
+        $retry = $config['retry'] ?? [];
+
+        return [
+            'enabled' => (bool) ($retry['enabled'] ?? true),
+            'max_attempts' => (int) ($retry['max_attempts'] ?? 3),
+            'backoff_initial_ms' => (int) ($retry['backoff_initial_ms'] ?? 500),
+            'backoff_factor' => (float) ($retry['backoff_factor'] ?? 2.0),
+            'jitter_ms' => (int) ($retry['jitter_ms'] ?? 200),
+        ];
     }
 
     /**
@@ -119,7 +136,7 @@ class AIProviderHelper
      */
     public static function getProviderBaseUrl(string $provider): string
     {
-        return self::getProviderSetting($provider, 'base_url', '');
+        return (string) (self::getProviderSetting($provider, 'base_url', '') ?? '');
     }
 
     /**
@@ -140,7 +157,7 @@ class AIProviderHelper
      */
     public static function getOpenAIOrganization(): string
     {
-        return setting('ai_content_openai_organization', '');
+        return (string) (setting('ai_content_openai_organization', '') ?? '');
     }
 
     /**
